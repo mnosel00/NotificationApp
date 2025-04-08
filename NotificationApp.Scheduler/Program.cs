@@ -1,7 +1,29 @@
+using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using NotificationApp.Infrastructure.Data;
 using NotificationApp.Scheduler;
+using System;
 
-var builder = Host.CreateApplicationBuilder(args);
-builder.Services.AddHostedService<Worker>();
+IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices((context, services) =>
+    {
+        services.AddHostedService<Worker>();
 
-var host = builder.Build();
+        services.AddDbContext<NotificationDbContext>(options =>
+            options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddMassTransit(x =>
+        {
+            x.UsingRabbitMq((ctx, cfg) =>
+            {
+                cfg.Host("localhost", "/", h =>
+                {
+                    h.Username("guest");
+                    h.Password("guest");
+                });
+            });
+        });
+    })
+    .Build();
+
 host.Run();
