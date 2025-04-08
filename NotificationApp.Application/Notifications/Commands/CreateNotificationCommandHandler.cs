@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 using NotificationApp.Domain.Entities;
+using NotificationApp.Domain.Repositories;
 using TimeZoneConverter;
 
 namespace NotificationApp.Application.Notifications.Commands
@@ -17,12 +18,12 @@ namespace NotificationApp.Application.Notifications.Commands
         {
             _repository = repository;
         }
-        public Task<Guid> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
+        public async Task<Guid> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
         {
             var tz = TZConvert.GetTimeZoneInfo(request.TimeZone);
             var scheduledUtc = TimeZoneInfo.ConvertTimeToUtc(request.ScheduledTimeLocal, tz);
 
-            var notification = new Notification.Domain.Entities.Notification
+            var notification = new Notification
             {
                 Content = request.Content,
                 Channel = request.Channel,

@@ -25,4 +25,8 @@
     <ProjectReference Include="..\NotificationApp.Infrastructure\NotificationApp.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 </Project>
