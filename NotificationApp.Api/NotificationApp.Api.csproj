@@ -10,4 +10,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\NotificationApp.Application\NotificationApp.Application.csproj" />
+    <ProjectReference Include="..\NotificationApp.Domain\NotificationApp.Domain.csproj" />
+    <ProjectReference Include="..\NotificationApp.Infrastructure\NotificationApp.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
