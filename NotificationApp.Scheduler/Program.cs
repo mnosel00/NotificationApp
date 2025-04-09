@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using NotificationApp.Infrastructure.Data;
 using NotificationApp.Scheduler;
@@ -7,8 +7,6 @@ using System;
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        services.AddHostedService<Worker>();
-
         services.AddDbContext<NotificationDbContext>(options =>
             options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -23,6 +21,8 @@ IHost host = Host.CreateDefaultBuilder(args)
                 });
             });
         });
+
+        services.AddHostedService<SchedulerWorker>();
     })
     .Build();
 

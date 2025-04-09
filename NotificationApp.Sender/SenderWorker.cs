@@ -1,10 +1,10 @@
 namespace NotificationApp.Sender
 {
-    public class Worker : BackgroundService
+    public class SenderWorker : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<SenderWorker> _logger;
 
-        public Worker(ILogger<Worker> logger)
+        public SenderWorker(ILogger<SenderWorker> logger)
         {
             _logger = logger;
         }

@@ -6,17 +6,16 @@ using System;
 
 namespace NotificationApp.Scheduler
 {
-    public class Worker : BackgroundService
+    public class SchedulerWorker : BackgroundService
     {
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<SchedulerWorker> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IPublishEndpoint _publishEndpoint;
+        
 
-        public Worker(ILogger<Worker> logger, IServiceProvider serviceProvider, IPublishEndpoint publishEndpoint)
+        public SchedulerWorker(ILogger<SchedulerWorker> logger, IServiceProvider serviceProvider)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
-            _publishEndpoint = publishEndpoint;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -24,7 +23,9 @@ namespace NotificationApp.Scheduler
             while (!stoppingToken.IsCancellationRequested)
             {
                 using var scope = _serviceProvider.CreateScope();
+
                 var db = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
+                var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
 
                 var dueNotifications = await db.Notifications
                     .Where(n => !n.IsSent && n.ScheduledTimeUtc <= DateTime.UtcNow)
@@ -40,10 +41,10 @@ namespace NotificationApp.Scheduler
 
                     _logger.LogInformation($"[SCHEDULER] Publishing notification {notification.Id}");
 
-                    await _publishEndpoint.Publish(message, stoppingToken);
+                    await publishEndpoint.Publish(message, stoppingToken);
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken); // sprawdzaj co 10 sekund
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             }
         }
     }
