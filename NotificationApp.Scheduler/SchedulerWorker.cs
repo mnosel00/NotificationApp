@@ -1,6 +1,7 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using NotificationApp.Application.Messaging;
+using NotificationApp.Domain.Entities;
 using NotificationApp.Infrastructure.Data;
 using System;
 
@@ -38,7 +39,8 @@ namespace NotificationApp.Scheduler
                 var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
 
                 var dueNotifications = await db.Notifications
-                    .Where(n => !n.IsSent && n.ScheduledTimeUtc <= DateTime.UtcNow)
+                    .Where(n => !n.IsSent && !n.IsCanceled &&
+                        (n.ScheduledTimeUtc <= DateTime.UtcNow || n.ForceSend))
                     .ToListAsync(stoppingToken);
 
                 foreach (var notification in dueNotifications)
@@ -46,16 +48,19 @@ namespace NotificationApp.Scheduler
                     var timeZone = TimeZoneInfo.FindSystemTimeZoneById(notification.TimeZone);
                     var localTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
 
-                    if (IsInNightHours(localTime))
+                    if (!notification.ForceSend)
                     {
-                        _logger.LogInformation($"[SCHEDULER] Skipping {notification.Id} - nocne godziny ({localTime:HH:mm})");
-                        continue;
-                    }
+                        if (IsInNightHours(localTime))
+                        {
+                            _logger.LogInformation($"[SCHEDULER] Skipping {notification.Id} - nocne godziny ({localTime:HH:mm})");
+                            continue;
+                        }
 
-                    if (IsInWeekend(localTime))
-                    {
-                        _logger.LogInformation($"[SCHEDULER] Skipping {notification.Id} - weekend ({localTime:dddd})");
-                        continue;
+                        if (IsInWeekend(localTime))
+                        {
+                            _logger.LogInformation($"[SCHEDULER] Skipping {notification.Id} - weekend ({localTime:dddd})");
+                            continue;
+                        }
                     }
 
                     var message = new SendMessage
@@ -67,6 +72,12 @@ namespace NotificationApp.Scheduler
                     _logger.LogInformation($"[SCHEDULER] Publishing notification {notification.Id}");
 
                     await publishEndpoint.Publish(message, stoppingToken);
+                   
+                    if (notification.ForceSend)
+                    {
+                        notification.ForceSend = false;
+                        await db.SaveChangesAsync();
+                    }
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);

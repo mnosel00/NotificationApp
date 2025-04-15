@@ -19,5 +19,7 @@ namespace NotificationApp.Domain.Entities
         public bool IsSent { get; set; } = false;
         public int RetryCount { get; set; } = 0;
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+        public bool IsCanceled { get; set; }
+        public bool ForceSend { get; set; }
     }
 }

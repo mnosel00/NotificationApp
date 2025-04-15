@@ -54,6 +54,30 @@ namespace NotificationApp.Api.Controllers
             return Ok(notifications);
         }
 
+        [HttpPost("{id}/cancel")]
+        public async Task<IActionResult> CancelNotification(Guid id)
+        {
+            var notification = await _context.Notifications.FindAsync(id);
+            if (notification == null || notification.IsSent) return NotFound();
+
+            notification.IsCanceled = true;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPost("{id}/force-send")]
+        public async Task<IActionResult> ForceSend(Guid id)
+        {
+            var notification = await _context.Notifications.FindAsync(id);
+            if (notification == null || notification.IsSent) return NotFound();
+
+            notification.ForceSend = true;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         private static string GetNotificationStatus(Notification n)
         {
             if (n.IsSent)
