@@ -34,7 +34,7 @@ namespace NotificationApp.Api.Controllers
             return Ok(new { Id = id });
         }
 
-        [HttpGet("statuses")]
+        [HttpGet("status")]
         public async Task<IActionResult> GetStatuses()
         {
             var now = DateTime.UtcNow;
