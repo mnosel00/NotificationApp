@@ -19,13 +19,11 @@ namespace NotificationApp.Sender.Consumers
         private readonly NotificationDbContext _context;
         private readonly ILogger<SendNotificationConsumer> _logger;
         private readonly AsyncRetryPolicy _retryPolicy;
-        private readonly string _channel;
 
-        public SendNotificationConsumer(NotificationDbContext context, ILogger<SendNotificationConsumer> logger, string channel)
+        public SendNotificationConsumer(NotificationDbContext context, ILogger<SendNotificationConsumer> logger)
         {
             _context = context;
             _logger = logger;
-            _channel = channel;
             _retryPolicy = Policy
                 .Handle<Exception>()
                 .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(2),
@@ -35,12 +33,6 @@ namespace NotificationApp.Sender.Consumers
         public async Task Consume(ConsumeContext<SendMessage> context)
         {
             var message = context.Message;
-
-            if (message.Channel != _channel)
-            {
-                _logger.LogWarning($"[SENDER] Ignoring notification {message.NotificationId} for channel {message.Channel}");
-                return;
-            }
 
             _logger.LogInformation($"[SENDER] Received notification {message.NotificationId}");
 
@@ -67,7 +59,12 @@ namespace NotificationApp.Sender.Consumers
 
         private Task SimulateSend(Notification n)
         {
-            _logger.LogInformation($"[SEND] Sending {n.Channel} to {n.Recipient}: {n.Content}");
+            var success = new Random().NextDouble() < 0.5;
+
+            if (!success)
+                throw new Exception("[SEND] Simulated failure");
+
+            _logger.LogInformation($"[SEND] Simulated success: {n.Channel} to {n.Recipient}: {n.Content}");
             return Task.CompletedTask;
         }
     }

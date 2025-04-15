@@ -25,11 +25,15 @@ await Host.CreateDefaultBuilder(args)
 
                 cfg.ReceiveEndpoint("notification-send-email", e =>
                 {
+                    e.PrefetchCount = 1;
+                    e.ConcurrentMessageLimit = 1;
                     e.ConfigureConsumer<SendNotificationConsumer>(ctx);
                 });
 
                 cfg.ReceiveEndpoint("notification-send-sms", e =>
                 {
+                    e.PrefetchCount = 1; 
+                    e.ConcurrentMessageLimit = 1; 
                     e.ConfigureConsumer<SendNotificationConsumer>(ctx);
                 });
             });
