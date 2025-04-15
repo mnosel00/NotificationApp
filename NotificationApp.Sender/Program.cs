@@ -5,7 +5,7 @@ using NotificationApp.Sender;
 using NotificationApp.Sender.Consumers;
 using System;
 
- Host.CreateDefaultBuilder(args)
+await Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
         services.AddDbContext<NotificationDbContext>(options =>
@@ -23,14 +23,19 @@ using System;
                     h.Password("guest");
                 });
 
-                cfg.ReceiveEndpoint("notification-send", e =>
+                cfg.ReceiveEndpoint("notification-send-email", e =>
+                {
+                    e.ConfigureConsumer<SendNotificationConsumer>(ctx);
+                });
+
+                cfg.ReceiveEndpoint("notification-send-sms", e =>
                 {
                     e.ConfigureConsumer<SendNotificationConsumer>(ctx);
                 });
             });
         });
 
-        services.AddMassTransitHostedService();
-    })
+        
+    }) 
     .Build()
-    .Run();
+    .RunAsync();

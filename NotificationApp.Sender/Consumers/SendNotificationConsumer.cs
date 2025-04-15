@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace NotificationApp.Sender.Consumers
@@ -18,20 +19,28 @@ namespace NotificationApp.Sender.Consumers
         private readonly NotificationDbContext _context;
         private readonly ILogger<SendNotificationConsumer> _logger;
         private readonly AsyncRetryPolicy _retryPolicy;
+        private readonly string _channel;
 
-        public SendNotificationConsumer(NotificationDbContext context, ILogger<SendNotificationConsumer> logger)
+        public SendNotificationConsumer(NotificationDbContext context, ILogger<SendNotificationConsumer> logger, string channel)
         {
             _context = context;
             _logger = logger;
+            _channel = channel;
             _retryPolicy = Policy
                 .Handle<Exception>()
                 .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(2),
                     (ex, time) => _logger.LogWarning($"Retry due to: {ex.Message}"));
         }
 
-        public  async Task Consume(ConsumeContext<SendMessage> context)
+        public async Task Consume(ConsumeContext<SendMessage> context)
         {
             var message = context.Message;
+
+            if (message.Channel != _channel)
+            {
+                _logger.LogWarning($"[SENDER] Ignoring notification {message.NotificationId} for channel {message.Channel}");
+                return;
+            }
 
             _logger.LogInformation($"[SENDER] Received notification {message.NotificationId}");
 
@@ -46,7 +55,6 @@ namespace NotificationApp.Sender.Consumers
 
             await _retryPolicy.ExecuteAsync(async () =>
             {
-                // Tu byłby kod np. do EmailService.Send(...)
                 await SimulateSend(notification);
             });
 
