@@ -17,6 +17,16 @@ namespace NotificationApp.Scheduler
             _logger = logger;
             _serviceProvider = serviceProvider;
         }
+        private bool IsInNightHours(DateTime localTime)
+        {
+            var hour = localTime.Hour;
+            return hour < 6 || hour >= 22;
+        }
+        private bool IsInWeekend(DateTime localTime)
+        {
+            var dayOfWeek = localTime.DayOfWeek;
+            return dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday;
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -33,6 +43,21 @@ namespace NotificationApp.Scheduler
 
                 foreach (var notification in dueNotifications)
                 {
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById(notification.TimeZone);
+                    var localTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+
+                    if (IsInNightHours(localTime))
+                    {
+                        _logger.LogInformation($"[SCHEDULER] Skipping {notification.Id} - nocne godziny ({localTime:HH:mm})");
+                        continue;
+                    }
+
+                    if (IsInWeekend(localTime))
+                    {
+                        _logger.LogInformation($"[SCHEDULER] Skipping {notification.Id} - weekend ({localTime:dddd})");
+                        continue;
+                    }
+
                     var message = new SendMessage
                     {
                         NotificationId = notification.Id,
