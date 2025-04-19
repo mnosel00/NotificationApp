@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NotificationApp.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,5 +11,7 @@ namespace NotificationApp.Application.Messaging
     {
         public Guid NotificationId { get; set; }
         public string Channel { get; set; } = null!;
+        public NotificationPriority Priority { get; set; }
+
     }
 }

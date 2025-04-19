@@ -21,5 +21,6 @@ namespace NotificationApp.Domain.Entities
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
         public bool IsCanceled { get; set; }
         public bool ForceSend { get; set; }
+        public NotificationPriority Priority { get; set; } 
     }
 }

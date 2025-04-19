@@ -21,7 +21,9 @@ namespace NotificationApp.Application.Notifications.Commands
         public async Task<Guid> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
         {
             var tz = TZConvert.GetTimeZoneInfo(request.TimeZone);
-            var scheduledUtc = TimeZoneInfo.ConvertTimeToUtc(request.ScheduledTimeLocal, tz);
+
+            var localTime = DateTime.SpecifyKind(request.ScheduledTimeLocal, DateTimeKind.Unspecified);
+            var scheduledUtc = TimeZoneInfo.ConvertTimeToUtc(localTime, tz);
 
             var notification = new Notification
             {

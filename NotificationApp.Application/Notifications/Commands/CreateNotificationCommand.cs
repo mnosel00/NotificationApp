@@ -16,5 +16,7 @@ namespace NotificationApp.Application.Notifications.Commands
         public string Recipient { get; set; } = null!;
         public DateTime ScheduledTimeLocal { get; set; }
         public string TimeZone { get; set; } = "UTC";
+        public NotificationPriority Priority { get; set; } = NotificationPriority.Low;
+
     }
 }

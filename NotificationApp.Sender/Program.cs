@@ -1,4 +1,4 @@
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using NotificationApp.Infrastructure.Data;
 using NotificationApp.Sender;
@@ -27,13 +27,15 @@ await Host.CreateDefaultBuilder(args)
                 {
                     e.PrefetchCount = 1;
                     e.ConcurrentMessageLimit = 1;
+                    e.SetQueueArgument("x-max-priority", 10);
                     e.ConfigureConsumer<SendNotificationConsumer>(ctx);
                 });
 
                 cfg.ReceiveEndpoint("notification-send-sms", e =>
                 {
                     e.PrefetchCount = 1; 
-                    e.ConcurrentMessageLimit = 1; 
+                    e.ConcurrentMessageLimit = 1;
+                    e.SetQueueArgument("x-max-priority", 10);
                     e.ConfigureConsumer<SendNotificationConsumer>(ctx);
                 });
             });
@@ -43,3 +45,8 @@ await Host.CreateDefaultBuilder(args)
     }) 
     .Build()
     .RunAsync();
+
+
+// Wyświetla wiadomość podwójnie
+// Mark As sent wyświetla się podwójnie
+//

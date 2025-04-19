@@ -66,7 +66,8 @@ namespace NotificationApp.Scheduler
                     var message = new SendMessage
                     {
                         NotificationId = notification.Id,
-                        Channel = notification.Channel.ToString()
+                        Channel = notification.Channel.ToString(),
+                        Priority = notification.Priority
                     };
 
                     _logger.LogInformation($"[SCHEDULER] Publishing notification {notification.Id}");

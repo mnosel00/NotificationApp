@@ -32,6 +32,8 @@ namespace NotificationApp.Sender.Consumers
 
         public async Task Consume(ConsumeContext<SendMessage> context)
         {
+            _logger.LogInformation($"[SENDER] >>> Consume START for {context.Message.NotificationId}, priority: {context.Message.Priority}");
+
             var message = context.Message;
 
             _logger.LogInformation($"[SENDER] Received notification {message.NotificationId}");
@@ -52,6 +54,7 @@ namespace NotificationApp.Sender.Consumers
 
             notification.IsSent = true;
             notification.RetryCount += 1;
+            notification.ForceSend = false;
             await _context.SaveChangesAsync();
 
             _logger.LogInformation($"[SENDER] Notification {notification.Id} marked as sent.");
