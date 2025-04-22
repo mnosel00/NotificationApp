@@ -10,6 +10,6 @@ namespace NotificationApp.Domain.Enums
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum NotificationChannel
     {
-        Email,Push
+        Email,SMS
     }
 }

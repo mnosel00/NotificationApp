@@ -66,7 +66,7 @@ namespace NotificationApp.Scheduler
                     var message = new SendMessage
                     {
                         NotificationId = notification.Id,
-                        Channel = notification.Channel.ToString(),
+                        Channel = notification.Channel,
                         Priority = notification.Priority
                     };
 

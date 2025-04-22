@@ -10,7 +10,7 @@ namespace NotificationApp.Application.Messaging
     public class SendMessage
     {
         public Guid NotificationId { get; set; }
-        public string Channel { get; set; } = null!;
+        public NotificationChannel Channel { get; set; }
         public NotificationPriority Priority { get; set; }
 
     }
