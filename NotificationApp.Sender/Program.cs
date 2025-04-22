@@ -13,7 +13,8 @@ await Host.CreateDefaultBuilder(args)
 
         services.AddMassTransit(x =>
         {
-            x.AddConsumer<SendNotificationConsumer>();
+            x.AddConsumer<SendEmailConsumer>();
+            x.AddConsumer<SendSMSConsumer>();
 
             x.UsingRabbitMq((ctx, cfg) =>
             {
@@ -23,25 +24,21 @@ await Host.CreateDefaultBuilder(args)
                     h.Password("guest");
                 });
 
-                cfg.ReceiveEndpoint("notification-send-email", e =>
+                cfg.ReceiveEndpoint("notification-send-EMAIL", e =>
                 {
-                    e.PrefetchCount = 1;
-                    e.ConcurrentMessageLimit = 1;
                     e.SetQueueArgument("x-max-priority", 10);
-                    e.ConfigureConsumer<SendNotificationConsumer>(ctx);
+                    e.ConfigureConsumer<SendEmailConsumer>(ctx);
                 });
 
-                cfg.ReceiveEndpoint("notification-send-sms", e =>
+                cfg.ReceiveEndpoint("notification-send-SMS", e =>
                 {
-                    e.PrefetchCount = 1; 
-                    e.ConcurrentMessageLimit = 1;
                     e.SetQueueArgument("x-max-priority", 10);
-                    e.ConfigureConsumer<SendNotificationConsumer>(ctx);
+                    e.ConfigureConsumer<SendSMSConsumer>(ctx);
                 });
             });
         });
 
-        
+
     }) 
     .Build()
     .RunAsync();
