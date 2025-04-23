@@ -52,13 +52,13 @@ namespace NotificationApp.Scheduler
                     {
                         if (IsInNightHours(localTime))
                         {
-                            _logger.LogInformation($"[SCHEDULER] Skipping {notification.Id} - nocne godziny ({localTime:HH:mm})");
+                            _logger.LogInformation($"Skipping {notification.Id} - night ({localTime:HH:mm})");
                             continue;
                         }
 
                         if (IsInWeekend(localTime))
                         {
-                            _logger.LogInformation($"[SCHEDULER] Skipping {notification.Id} - weekend ({localTime:dddd})");
+                            _logger.LogInformation($"Skipping {notification.Id} - weekend ({localTime:dddd})");
                             continue;
                         }
                     }
@@ -70,7 +70,7 @@ namespace NotificationApp.Scheduler
                         Priority = notification.Priority
                     };
 
-                    _logger.LogInformation($"[SCHEDULER] Publishing notification {notification.Id}");
+                    _logger.LogInformation($"Message completed {notification.Id}");
 
                     await publishEndpoint.Publish(message, stoppingToken);
                    

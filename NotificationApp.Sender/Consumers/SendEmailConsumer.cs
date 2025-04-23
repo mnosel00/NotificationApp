@@ -45,20 +45,18 @@ namespace NotificationApp.Sender.Consumers
             if (context.Message.Channel != NotificationChannel.Email)
                 return;
 
-            _logger.LogInformation($"[EMAIL] >>> Consume START for {context.Message.NotificationId}");
-
             var notification = await _context.Notifications
                 .FirstOrDefaultAsync(n => n.Id == context.Message.NotificationId);
 
             if (notification == null || notification.IsSent)
             {
-                _logger.LogWarning($"[EMAIL] Notification {context.Message.NotificationId} not found or already sent.");
+                _logger.LogWarning($"EMAIL Notification {context.Message.NotificationId} not found or already sent.");
                 return;
             }
 
             await _retryPolicy.ExecuteAsync(async () =>
             {
-                _logger.LogInformation($"[EMAIL] Sending email to {notification.Recipient}: {notification.Content}");
+                _logger.LogInformation($"EMAIL Sending email to {notification.Recipient}: {notification.Content}");
                 await SimulateSend(notification);
             });
 
@@ -66,7 +64,7 @@ namespace NotificationApp.Sender.Consumers
             notification.ForceSend = false;
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation($"[EMAIL] Notification {notification.Id} marked as sent.");
+            _logger.LogInformation($"EMAIL Notification {notification.Id} marked as sent.");
         }
 
         private Task SimulateSend(Notification n)
@@ -76,7 +74,7 @@ namespace NotificationApp.Sender.Consumers
             if (!success)
                 throw new Exception("failure");
 
-            _logger.LogInformation($"[EMAIL] Simulated success: {n.Channel} to {n.Recipient}: {n.Content}");
+            _logger.LogInformation($"EMAIL Simulated success: {n.Channel} to {n.Recipient}: {n.Content}");
             return Task.CompletedTask;
         }
     }

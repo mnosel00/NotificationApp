@@ -42,8 +42,3 @@ await Host.CreateDefaultBuilder(args)
     }) 
     .Build()
     .RunAsync();
-
-
-// Wyświetla wiadomość podwójnie
-// Mark As sent wyświetla się podwójnie
-//
